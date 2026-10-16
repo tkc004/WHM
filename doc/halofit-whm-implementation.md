@@ -156,13 +156,13 @@ W_{\rm TH}(k,M) = wkTH.
 More precisely, in the WHM loop the arguments are
 
 ```math
-W_h=\operatorname{win}\left(k\nu^{\eta},r_v,c\right),
+W_h=\mathrm{win}\left(k\nu^{\eta},r_v,c\right),
 \qquad
-W_f=\operatorname{win\_alt}\left(k,r_v,r_r,2,\texttt{ivar\_profile}\right),
+W_f=\mathrm{win\_alt}\left(k,r_v,r_r,2,\mathrm{ivar\_profile}\right),
 ```
 
 ```math
-W_s=\operatorname{win\_alt}\left(k,r_v,r_r,1,\texttt{ivar\_profile}\right),
+W_s=\mathrm{win\_alt}\left(k,r_v,r_r,1,\mathrm{ivar\_profile}\right),
 \qquad
 W_{\rm TH}=W_{\rm TH}(k,r_r;1).
 ```
@@ -188,8 +188,8 @@ the code evaluates
 W_h(k,M)
 =
 \frac{
-\cos(x)\left[\operatorname{Ci}((1+c)x)-\operatorname{Ci}(x)\right]
-+\sin(x)\left[\operatorname{Si}((1+c)x)-\operatorname{Si}(x)\right]
+\cos(x)\left[\mathrm{Ci}((1+c)x)-\mathrm{Ci}(x)\right]
++\sin(x)\left[\mathrm{Si}((1+c)x)-\mathrm{Si}(x)\right]
 -\frac{\sin(cx)}{(1+c)x}
 }{m(c)}.
 ```
@@ -239,8 +239,8 @@ W_f(k,M)
 \left[
 -d_f k\sqrt{2\pi}\cos\left(\frac{d_f k}{\sqrt{2\pi}}\right)
 +2\pi\sin\left(\frac{d_f k}{\sqrt{2\pi}}\right)
--d_f^2k^2\operatorname{Si}\left(\frac{d_f k}{\sqrt{2\pi}}\right)
-+d_f^2k^2\operatorname{Si}(kr_r)
+-d_f^2k^2\mathrm{Si}\left(\frac{d_f k}{\sqrt{2\pi}}\right)
++d_f^2k^2\mathrm{Si}(kr_r)
 \right],
 ```
 
@@ -266,7 +266,7 @@ In the WHM integrand, `wkf_2` and `wks_2` are not generally calculated as
 ```math
 W_f^{(2)}(k,M)
 =
-\frac{2\left[-1+\cos(2kr_r)+2kr_r\operatorname{Si}(2kr_r)\right]}
+\frac{2\left[-1+\cos(2kr_r)+2kr_r\mathrm{Si}(2kr_r)\right]}
 {(2kr_r)^2}
 \left|W_{\rm TH}\left(k,\sqrt{\frac{5}{6}}d,1\right)\right|^2,
 ```
@@ -283,7 +283,7 @@ W_s^{(2)}(k,M)
 where the code defines
 
 ```math
-H(q)=\operatorname{Re}\left[e^{-2iq}
+H(q)=\mathrm{Re}\left[e^{-2iq}
 {}_1F_1\left(\frac{3}{2};3;4iq\right)\right].
 ```
 
@@ -300,7 +300,7 @@ The cross variants use dedicated filament/sphere and sheet/sphere windows. With
 ```math
 W_{f\times h}(k,M)
 =
-\frac{3\left[\sin(q)-q\cos(q)\right]\operatorname{Si}(q)}{r_r^4 k^4}
+\frac{3\left[\sin(q)-q\cos(q)\right]\mathrm{Si}(q)}{r_r^4 k^4}
 W_{\rm TH}(k,d,1)^2,
 ```
 

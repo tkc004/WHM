@@ -57,13 +57,13 @@ pfull = p2h + p1h       [for WHM]
 This happens in [`halofit.f90`](../WHM-CAMB/fortran/halofit.f90#L1064).
 The WHM result is therefore
 
-\[
+$$
 \Delta^2_{\rm WHM}(k)
 =
 \Delta^2_{\rm 2h}(k)
 +
 \Delta^2_{\rm 1h}(k).
-\]
+$$
 
 ## 3. The two-halo term
 
@@ -77,15 +77,15 @@ See [`p_2h`](../WHM-CAMB/fortran/halofit.f90#L1990). Damping and
 de-wiggling expressions remain as commented alternatives, but are not active
 for WHM. Hence
 
-\[
+$$
 \Delta^2_{\rm 2h}(k)=\Delta^2_{\rm lin}(k).
-\]
+$$
 
 ## 4. Web components and multiplicity functions
 
 The WHM one-halo calculation starts in
 [`p_1h`](../WHM-CAMB/fortran/halofit.f90#L2029). For each peak-height value
-\(\nu\), it constructs multiplicity functions for three cosmic-web
+$\nu$, it constructs multiplicity functions for three cosmic-web
 components:
 
 ```fortran
@@ -150,13 +150,13 @@ integrand = (g  * (wk_2  - wkf_2) &
 
 Equivalently,
 
-\[
+$$
 I_{\rm baseline}
 =
 g\left(W_h^2-W_f^2\right)
 +
 g_f\left(W_f^2-W_s^2\right).
-\]
+$$
 
 The subtractions are intentional. WHM does not add three independent powers:
 
@@ -180,7 +180,7 @@ integrand = (g  * (wk_2  - wkf_2) &
 
 In equation form,
 
-\[
+$$
 I_{\rm tweaked}
 =
 g\left(W_h^2-W_f^2\right)
@@ -188,25 +188,25 @@ g\left(W_h^2-W_f^2\right)
 g_f\left(W_f^2-W_s^2\right)
 +
 g_sW_s^2\left[1-W_{\rm TH}^2(k,r_{\rm nl})\right].
-\]
+$$
 
 The sheet contribution is therefore suppressed through
-\(1-W_{\rm TH}^2(k,r_{\rm nl})\), so sheets contribute only beyond the
+$1-W_{\rm TH}^2(k,r_{\rm nl})$, so sheets contribute only beyond the
 nonlinear transition. This is implemented at
 [`halofit.f90`](../WHM-CAMB/fortran/halofit.f90#L2154).
 
 ## 8. Integration and dimensionless power
 
-After integrating over the tabulated values of \(\nu\), the code divides by
+After integrating over the tabulated values of $\nu$, the code divides by
 the cosmic matter density and converts to dimensionless power:
 
-\[
+$$
 \Delta^2_{\rm 1h}(k)
 =
 \frac{k^3}{2\pi^2}
 \frac{1}{\bar\rho}
 \int d\nu\,m(\nu)I(\nu,k).
-\]
+$$
 
 The final conversion is performed by
 

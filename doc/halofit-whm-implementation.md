@@ -139,6 +139,189 @@ For `ivar_profile=3`, the code instead calls `win_alt_nfw` and
 `win_alt_2wc`. These thin-web profiles depend on the halo concentration
 `c(M)`; see [`halofit.f90`](../WHM-CAMB/fortran/halofit.f90#L2105).
 
+### Explicit window formulas
+
+It is useful to identify the variables in `p_1h` as
+
+```math
+W_h(k,M) = wk,
+\qquad
+W_f(k,M) = wkf,
+\qquad
+W_s(k,M) = wks,
+\qquad
+W_{\rm TH}(k,M) = wkTH.
+```
+
+More precisely, in the WHM loop the arguments are
+
+```math
+W_h=\operatorname{win}\left(k\nu^{\eta},r_v,c\right),
+\qquad
+W_f=\operatorname{win\_alt}\left(k,r_v,r_r,2,\texttt{ivar\_profile}\right),
+```
+
+```math
+W_s=\operatorname{win\_alt}\left(k,r_v,r_r,1,\texttt{ivar\_profile}\right),
+\qquad
+W_{\rm TH}=W_{\rm TH}(k,r_r;1).
+```
+
+Here `r_v=lut%rv` is the halo radius, `r_r=lut%rr` is the web-object
+radius, `c=lut%c` is the halo concentration, and `eta` is the profile
+scaling exponent returned by `this%eta`. The filament and sheet arguments use
+`nu**0`, so their profile wavenumber is simply `k`.
+
+The halo window is the normalized truncated NFW Fourier transform. Defining
+
+```math
+k_h=k\nu^{\eta},
+\qquad
+x = \frac{k_h r_v}{c},
+\qquad
+m(c)=\ln(1+c)-\frac{c}{1+c},
+```
+
+the code evaluates
+
+```math
+W_h(k,M)
+=
+\frac{
+\cos(x)\left[\operatorname{Ci}((1+c)x)-\operatorname{Ci}(x)\right]
++\sin(x)\left[\operatorname{Si}((1+c)x)-\operatorname{Si}(x)\right]
+-\frac{\sin(cx)}{(1+c)x}
+}{m(c)}.
+```
+
+This is implemented by `winnfw`, called from `win`, in
+[`halofit.f90`](../WHM-CAMB/fortran/halofit.f90#L2944).
+
+The spherical top-hat window used for the sphere term is
+
+```math
+W_{\rm TH}(k,R;\Delta_v)
+=
+\frac{3\Delta_v}{(kR)^3}
+\left[
+\sin\left(\frac{kR}{\Delta_v^{1/3}}\right)
+-\frac{kR}{\Delta_v^{1/3}}
+\cos\left(\frac{kR}{\Delta_v^{1/3}}\right)
+\right].
+```
+
+For the ordinary sphere window, `Delta_v=1`, so this reduces to
+
+```math
+W_{\rm TH}(k,R)
+=
+3\frac{\sin(kR)-kR\cos(kR)}{(kR)^3}.
+```
+
+The implementation is [`WindowTophat`](../WHM-CAMB/fortran/halofit.f90#L3340).
+
+For the default constant-density web profiles, define
+
+```math
+D_v=\left(\frac{r_r}{r_v}\right)^3,
+\qquad
+d_f=\sqrt{\frac{2\pi}{3}}\frac{r_r}{D_v^{1/3}},
+\qquad
+d_s=\frac{4}{3}\frac{r_r}{D_v^{1/3}}.
+```
+
+Then the filament and sheet windows used for the cross terms are
+
+```math
+W_f(k,M)
+=
+-\frac{3\sqrt{\pi}}{d_f^2 k^3\left(\sqrt{2}d_f-3\sqrt{\pi}r_r\right)}
+\left[
+-d_f k\sqrt{2\pi}\cos\left(\frac{d_f k}{\sqrt{2\pi}}\right)
++2\pi\sin\left(\frac{d_f k}{\sqrt{2\pi}}\right)
+-d_f^2k^2\operatorname{Si}\left(\frac{d_f k}{\sqrt{2\pi}}\right)
++d_f^2k^2\operatorname{Si}(kr_r)
+\right],
+```
+
+and
+
+```math
+W_s(k,M)
+=
+\frac{24\left[d_s k\cos(kr_r)-2\sin(d_s k/2)\right]}
+{k^3\left(d_s^3-12d_s r_r^2\right)}.
+```
+
+These formulas are implemented by `WindowFilament` and `WindowSheet`,
+selected by `win_alt`; see
+[`halofit.f90`](../WHM-CAMB/fortran/halofit.f90#L2958) and
+[`halofit.f90`](../WHM-CAMB/fortran/halofit.f90#L3222).
+
+### Important distinction: `wkf_2` and `wks_2`
+
+In the WHM integrand, `wkf_2` and `wks_2` are not generally calculated as
+`wkf**2` and `wks**2`. They are dedicated second-moment functions:
+
+```math
+W_f^{(2)}(k,M)
+=
+\frac{2\left[-1+\cos(2kr_r)+2kr_r\operatorname{Si}(2kr_r)\right]}
+{(2kr_r)^2}
+\left|W_{\rm TH}\left(k,\sqrt{\frac{5}{6}}d,1\right)\right|^2,
+```
+
+where `d=r_r/D_v^(1/3)` in `win_alt_2w`, and
+
+```math
+W_s^{(2)}(k,M)
+=
+\frac{2-2H(kr_r)}{(kr_r)^2}
+\left|W_{\rm TH}\left(k,\frac{2\sqrt{5}}{3\sqrt{3}}d,1\right)\right|^2,
+```
+
+where the code defines
+
+```math
+H(q)=\operatorname{Re}\left[e^{-2iq}
+{}_1F_1\left(\frac{3}{2};3;4iq\right)\right].
+```
+
+The corresponding routines are `WindowFilament_2f` and `WindowSheet_2s` in
+[`halofit.f90`](../WHM-CAMB/fortran/halofit.f90#L3147). For thin-web profiles,
+the analogous quantities are `WindowFilament_2fc` and `WindowSheet_2sc`, which
+replace the top-hat transverse factor by a concentration-dependent NFW factor.
+
+### Cross windows
+
+The cross variants use dedicated filament/sphere and sheet/sphere windows. With
+`q=kr_r`, the code implements
+
+```math
+W_{f\times h}(k,M)
+=
+\frac{3\left[\sin(q)-q\cos(q)\right]\operatorname{Si}(q)}{r_r^4 k^4}
+W_{\rm TH}(k,d,1)^2,
+```
+
+and
+
+```math
+W_{s\times h}(k,M)
+=
+\frac{12r_rk\sin^2(q/2)\left[\sin(q)-q\cos(q)\right]}{q^6}
+W_{\rm TH}(k,d,1)^2.
+```
+
+They are implemented by `WindowFilament_cross_Sphere` and
+`WindowSheet_cross_Sphere` in
+[`halofit.f90`](../WHM-CAMB/fortran/halofit.f90#L3186).
+
+For `ivar_profile=3`, the unsquared `W_f` and `W_s` are instead the
+concentration-dependent `WindowFilamentNFW` and `WindowSheetNFW` expressions,
+selected by `win_alt_nfw`; their full formulas are in
+[`halofit.f90`](../WHM-CAMB/fortran/halofit.f90#L3080).
+
 ## 6. Baseline WHM
 
 For `imead=10` and `ibrieden=0`, the integrand is
